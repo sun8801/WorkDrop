@@ -18,3 +18,45 @@ if (!self) return;
 self->_abc = 1;
 });
 ```
+## 3、给Xcode添加自定义工程模板
+参考：[Xcode自定义模板](https://xiaovv.me/2018/03/16/Custom-xcode-templates/)
+
+自动拷贝模板至Xcode脚本
+
+```sh
+#!/bin/sh
+
+current_dir=$(pwd)
+script_dir=$(dirname $0)
+dir="$current_dir/$script_dir/XXX_XX.xctemplate"
+
+path=~/Library/Developer/Xcode/Templates/File\ Templates/User\ Interface
+mkdir  -p "${path}" && cp -r "$dir" "$path"
+
+if [ $? -eq 0 ]; then
+   echo "✅XXX_XX 配置脚本执行成功！"
+else
+   echo "\033[31m❗️XXX_XX 配置脚本执行失败! \033[0m"
+fi
+
+```
+
+## 4、pod install / update 时自动执行脚本
+在xx.podspec 中添加
+
+```rb
+# 脚本路径
+spec.resources = ['Source/Script/*']
+# 执行脚本
+spec.prepare_command = <<-CMD
+    path=./Source//Script/config.sh
+    if [ -f "$path" ]; then
+      sh $path
+    else
+      echo "$path not exist"
+    fi
+    pwd
+    printenv
+    echo "======end======="
+CMD
+```
